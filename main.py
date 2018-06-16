@@ -73,6 +73,8 @@ def main():
     sample_parser.add_argument('--sample', type=int, default=1,
                         help='0 to use max at each timestep, 1 to sample at '
                              'each timestep, 2 to sample on spaces')
+    sample_parser.add_argument('--output_file', type=str, default='result.txt',
+                        help='The text file to output the result to', widget='FileChooser')
 
     
     args = parser.parse_args()
@@ -179,8 +181,15 @@ def sample(args):
         ckpt = tf.train.get_checkpoint_state(args.save_dir)
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
-            print(model.sample(sess, chars, vocab, args.n, args.prime,
-                               args.sample).encode('utf-8'))
+            out_text = model.sample(sess, chars, vocab, args.n, args.prime,
+                               args.sample)
+            print(out_text.encode('utf-8'))
+            if args.output_file != '':
+                save_output(args.output_file, out_text)
+
+def save_output(output_file, text):
+    with open(output_file, "a", encoding="utf-8") as out_file:
+        out_file.write(text)
 
 if __name__ == '__main__':
     main()
