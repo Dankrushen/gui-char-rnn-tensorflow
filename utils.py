@@ -17,10 +17,10 @@ class TextLoader():
         tensor_file = os.path.join(data_dir, "data.npy")
 
         if not (os.path.exists(vocab_file) and os.path.exists(tensor_file)):
-            print("reading text file")
+            print("Reading text file '%s'..."%input_file)
             self.preprocess(input_file, vocab_file, tensor_file)
         else:
-            print("loading preprocessed files")
+            print("Loading preprocessed files...")
             self.load_preprocessed(vocab_file, tensor_file)
         self.create_batches()
         self.reset_batch_pointer()
@@ -57,7 +57,7 @@ class TextLoader():
         # When the data (tensor) is too small,
         # let's give them a better error message
         if self.num_batches == 0:
-            assert False, "Not enough data. Make seq_length and batch_size small."
+            assert False, "Not enough data. Make seq_length and batch_size smaller."
 
         # reshape the original data into the length self.num_batches * self.batch_size * self.seq_length for convenience.
         self.tensor = self.tensor[:self.num_batches * self.batch_size * self.seq_length]

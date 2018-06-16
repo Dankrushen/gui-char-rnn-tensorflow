@@ -22,7 +22,7 @@ class Model():
         elif args.model == 'nas':
             cell_fn = rnn.NASCell
         else:
-            raise Exception("model type not supported: {}".format(args.model))
+            raise Exception("Model type not supported: {}".format(args.model))
 
         # warp multi layered rnn cell into one cell with dropout
         cells = []

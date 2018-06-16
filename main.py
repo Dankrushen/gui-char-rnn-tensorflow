@@ -20,41 +20,42 @@ def main():
 
     subs = parser.add_subparsers(dest='command', help='commands')
 
-    train_parser = subs.add_parser('train', help='Train the RNN')
+    train_parser = subs.add_parser('Train', help='Train the RNN')
 
     train_parser.add_argument('--data_dir', type=str, default='data/tinyshakespeare',
-                        help='data directory containing input.txt', widget='DirChooser')
-    train_parser.add_argument('--input_file', widget='FileChooser', help='the file to train the RNN on')
+                        help='Data directory for vocab', widget='DirChooser')
+    train_parser.add_argument('--input_file', type=str, default='data/tinyshakespeare/input.txt',
+                        help='The text file to train the RNN on', widget='FileChooser')
     train_parser.add_argument('--save_dir', type=str, default='save',
-                        help='directory to store checkpointed models', widget='DirChooser')
+                        help='Directory to store models checkpoints', widget='DirChooser')
     train_parser.add_argument('--log_dir', type=str, default='logs',
-                        help='directory to store tensorboard logs', widget='DirChooser')
+                        help='Directory to store tensorboard logs', widget='DirChooser')
     train_parser.add_argument('--rnn_size', type=int, default=128,
-                        help='size of RNN hidden state')
+                        help='Size of RNN hidden state')
     train_parser.add_argument('--num_layers', default='2', choices=['1', '2', '3', '4', '5'],
-                        help='number of layers in the RNN')
+                        help='Number of layers in the RNN')
     train_parser.add_argument('--model', type=str, default='lstm', choices=['lstm', 'rnn', 'gru', 'nas'],
-                        help='rnn, gru, lstm, or nas')
+                        help='RNN, GRU, LSTM, or NAS')
     train_parser.add_argument('--batch_size', type=int, default=50,
-                        help='minibatch size')
+                        help='Minibatch size')
     train_parser.add_argument('--seq_length', type=int, default=50,
                         help='RNN sequence length')
     train_parser.add_argument('--num_epochs', type=int, default=50,
-                        help='number of epochs')
+                        help='Number of epochs')
     train_parser.add_argument('--save_every', type=int, default=1000,
-                        help='save frequency')
+                        help='Save frequency')
     train_parser.add_argument('--grad_clip', type=float, default=5.,
-                        help='clip gradients at this value')
+                        help='Clip gradients at this value')
     train_parser.add_argument('--learning_rate', type=float, default=0.002,
-                        help='learning rate')
+                        help='Learning rate')
     train_parser.add_argument('--decay_rate', type=float, default=0.97,
-                        help='decay rate for rmsprop')
+                        help='Decay rate for rmsprop')
     train_parser.add_argument('--output_keep_prob', type=float, default=1.0,
-                        help='probability of keeping weights in the hidden layer')
+                        help='Probability of keeping weights in the hidden layer')
     train_parser.add_argument('--input_keep_prob', type=float, default=1.0,
-                        help='probability of keeping weights in the input layer')
+                        help='Probability of keeping weights in the input layer')
     train_parser.add_argument('--init_from', type=str, default=None, widget='DirChooser',
-                        help="""continue training from saved model at this path. Path must contain files saved by previous training process:
+                        help="""Continue training from saved model at this path. Path must contain files saved by previous training process:
                             'config.pkl'        : configuration;
                             'chars_vocab.pkl'   : vocabulary definitions;
                             'checkpoint'        : paths to model file(s) (created by tf).
@@ -62,13 +63,13 @@ def main():
                             'model.ckpt-*'      : file(s) with model definition (created by tf)
                         """)
     
-    sample_parser = subs.add_parser('sample', help="Sample your model")
+    sample_parser = subs.add_parser('Sample', help="Sample your trained model")
     sample_parser.add_argument('--save_dir', type=str, default='save',
-                        help='model directory to store checkpointed models', widget='DirChooser')
+                        help='Model directory containing your model checkpoints', widget='DirChooser')
     sample_parser.add_argument('-n', type=int, default=500,
-                        help='number of characters to sample')
-    sample_parser.add_argument('--prime', type=text_type, default=u' ',
-                        help='prime text')
+                        help='Number of characters to sample')
+    sample_parser.add_argument('--prime', type=text_type, default=u'',
+                        help='Prime text')
     sample_parser.add_argument('--sample', type=int, default=1,
                         help='0 to use max at each timestep, 1 to sample at '
                              'each timestep, 2 to sample on spaces')
@@ -76,12 +77,12 @@ def main():
     
     args = parser.parse_args()
 
-    if args.command == 'sample':
+    if args.command == 'Sample':
         sample(args)
-    elif args.command == 'train':
+    elif args.command == 'Train':
         train(args)
     else:
-        print("hopplöst")
+        print("Unknown Error")
 
 
 def train(args):
@@ -150,7 +151,7 @@ def train(args):
                 writer.add_summary(summ, e * data_loader.num_batches + b)
 
                 end = time.time()
-                print("{}/{} (epoch {}), train_loss = {:.3f}, time/batch = {:.3f}"
+                print("{}/{} (Epoch {}), Train_loss = {:.3f}, Time/Batch = {:.3f}"
                       .format(e * data_loader.num_batches + b,
                               args.num_epochs * data_loader.num_batches,
                               e, train_loss, end - start))
@@ -161,7 +162,7 @@ def train(args):
                     checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
                     saver.save(sess, checkpoint_path,
                                global_step=e * data_loader.num_batches + b)
-                    print("model saved to {}".format(checkpoint_path))
+                    print("Model saved to '{}'.".format(checkpoint_path))
 
 def sample(args):
     with open(os.path.join(args.save_dir, 'config.pkl'), 'rb') as f:
