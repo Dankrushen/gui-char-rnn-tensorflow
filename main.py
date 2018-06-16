@@ -94,7 +94,7 @@ def train(args):
         assert os.path.isdir(args.init_from)," %s must be a a path" % args.init_from
         assert os.path.isfile(os.path.join(args.init_from,"config.pkl")),"config.pkl file does not exist in path %s"%args.init_from
         assert os.path.isfile(os.path.join(args.init_from,"chars_vocab.pkl")),"chars_vocab.pkl.pkl file does not exist in path %s" % args.init_from
-        ckpt = tf.train.get_checkpoint_state(args.init_from)
+        ckpt = tf.train.latest_checkpoint(args.init_from)
         assert ckpt, "No checkpoint found"
         assert ckpt.model_checkpoint_path, "No model path found in checkpoint"
 
@@ -168,6 +168,9 @@ def sample(args):
         saved_args = cPickle.load(f)
     with open(os.path.join(args.save_dir, 'chars_vocab.pkl'), 'rb') as f:
         chars, vocab = cPickle.load(f)
+    #Use most frequent char if no prime is given
+    if args.prime == '':
+        args.prime = chars[0]
     model = Model(saved_args, training=False)
     with tf.Session() as sess:
         tf.global_variables_initializer().run()
