@@ -14,7 +14,12 @@ from six import text_type
 from gooey import Gooey
 from gooey import GooeyParser
 
-@Gooey(advanced=True, optional_cols=2, navigation='TABBED')
+@Gooey(advanced=True,
+       optional_cols=2,
+       navigation='TABBED',
+       program_name="GUI Char-RNN Tensorflow",
+       program_description="A GUI implementation of Char-RNN using Tensorflow",
+       default_size=(750, 700))
 def main():
     parser = GooeyParser()
 
@@ -56,12 +61,10 @@ def main():
                         help='Probability of keeping weights in the input layer')
     train_parser.add_argument('--init_from', type=str, default=None, widget='DirChooser',
                         help="""Continue training from saved model at this path. Path must contain files saved by previous training process:
-                            'config.pkl'        : configuration;
-                            'chars_vocab.pkl'   : vocabulary definitions;
-                            'checkpoint'        : paths to model file(s) (created by tf).
-                                                  Note: this file contains absolute paths, be careful when moving files around;
-                            'model.ckpt-*'      : file(s) with model definition (created by tf)
-                        """)
+'config.pkl'    : Configuration;
+'chars_vocab.pkl'   : Vocabulary definitions;
+'checkpoint'    : Paths to model file(s) (created by tf) Note: This file contains absolute paths, be careful when moving files around
+'model.ckpt-*'  : File(s) with model definition (created by tf)""")
     
     sample_parser = subs.add_parser('Sample', help="Sample your trained model")
     sample_parser.add_argument('--save_dir', type=str, default='save',
@@ -99,8 +102,7 @@ def train(args):
         assert os.path.isfile(os.path.join(args.init_from,"chars_vocab.pkl")),"chars_vocab.pkl.pkl file does not exist in path %s" % args.init_from
         ckpt = tf.train.latest_checkpoint(args.init_from)
         assert ckpt, "No checkpoint found"
-        assert ckpt.model_checkpoint_path, "No model path found in checkpoint"
-
+        
         # open old config and check if models are compatible
         with open(os.path.join(args.init_from, 'config.pkl'), 'rb') as f:
             saved_model_args = cPickle.load(f)
@@ -134,7 +136,7 @@ def train(args):
         saver = tf.train.Saver(tf.global_variables(), save_relative_paths=True)
         # restore model
         if args.init_from is not None:
-            saver.restore(sess, ckpt.model_checkpoint_path)
+            saver.restore(sess, ckpt)
         for e in range(args.num_epochs):
             sess.run(tf.assign(model.lr,
                                args.learning_rate * (args.decay_rate ** e)))
